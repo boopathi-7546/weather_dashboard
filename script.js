@@ -9,7 +9,7 @@
  
 /* ─── CONFIG ─────────────────────────────────────────────────── */
  
-const API_KEY  = 'YOUR_API_KEY_HERE';          // ← Paste your key here
+const API_KEY  = 'const API_KEY = "4c0e126064f25d8407fedf15ce5b954a";';          // ← Paste your key here
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 const UNITS    = 'metric';                      // 'imperial' for °F
 const MAX_HISTORY = 8;                          // how many searches to remember
