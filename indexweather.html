@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skycast — Weather Dashboard</title>
+  <link rel="stylesheet" href="styleweather.css" />
+  <!-- Fonts: Clash Display (display) + DM Sans (body) via Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+ 
+  <!-- ══════════════════════════════════════════
+       ANIMATED BACKGROUND LAYER
+       Changes gradient based on weather condition
+  ══════════════════════════════════════════ -->
+  <div class="sky-bg" id="skyBg" aria-hidden="true">
+    <div class="sky-layer sky-layer-1"></div>
+    <div class="sky-layer sky-layer-2"></div>
+    <!-- Floating orbs for atmosphere -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+ 
+  <!-- ══════════════════════════════════════════
+       APP SHELL
+  ══════════════════════════════════════════ -->
+  <div class="app-shell">
+ 
+    <!-- ── HEADER ── -->
+    <header class="app-header">
+      <div class="brand">
+        <!-- Animated sun/moon logo mark -->
+        <div class="brand-mark" id="brandMark" aria-hidden="true">
+          <div class="brand-mark-inner">☀️</div>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-name">Skycast</h1>
+          <p class="brand-tagline">Real-time weather</p>
+        </div>
+      </div>
+ 
+      <!-- Live clock + theme toggle -->
+      <div class="header-right">
+        <div class="live-clock" id="liveClock" aria-label="Current time">
+          <span class="clock-time" id="clockTime">--:--</span>
+          <span class="clock-date" id="clockDate">--- --, ----</span>
+        </div>
+        <button class="theme-btn" id="themeBtn" aria-label="Toggle dark/light mode">
+          <span class="theme-icon" id="themeIcon">🌙</span>
+        </button>
+      </div>
+    </header>
+ 
+    <!-- ── SEARCH SECTION ── -->
+    <section class="search-section" aria-label="Search weather by city">
+      <div class="search-wrap">
+        <div class="search-bar">
+          <svg class="search-icon-svg" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M13 13L16 16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="search"
+            id="cityInput"
+            class="city-input"
+            placeholder="Search city — e.g. Chennai, London, Tokyo…"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="City name"
+          />
+          <button class="search-btn" id="searchBtn" aria-label="Search weather">
+            <span class="search-btn-text">Search</span>
+            <!-- Loading spinner (hidden by default) -->
+            <span class="spinner" id="searchSpinner" aria-hidden="true"></span>
+          </button>
+        </div>
+ 
+        <!-- Recent searches dropdown -->
+        <div class="recent-searches" id="recentSearches" aria-label="Recent searches" role="list">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+ 
+      <!-- Error banner -->
+      <div class="error-banner" id="errorBanner" role="alert" aria-live="assertive" aria-hidden="true">
+        <span class="error-icon" aria-hidden="true">⚠️</span>
+        <span class="error-msg" id="errorMsg">City not found. Check the spelling and try again.</span>
+        <button class="error-close" id="errorClose" aria-label="Dismiss error">✕</button>
+      </div>
+    </section>
+ 
+    <!-- ── MAIN CONTENT (hidden until first search) ── -->
+    <main class="main-content" id="mainContent" aria-live="polite">
+ 
+      <!-- ── WELCOME / IDLE STATE ── -->
+      <div class="idle-state" id="idleState">
+        <div class="idle-illustration" aria-hidden="true">
+          <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="42" r="20" fill="url(#sunGrad)" opacity="0.9"/>
+            <circle cx="50" cy="42" r="28" fill="url(#sunGrad)" opacity="0.15"/>
+            <ellipse cx="38" cy="65" rx="22" ry="12" fill="white" opacity="0.18"/>
+            <ellipse cx="62" cy="68" rx="18" ry="10" fill="white" opacity="0.13"/>
+            <ellipse cx="50" cy="70" rx="26" ry="13" fill="white" opacity="0.22"/>
+            <defs>
+              <radialGradient id="sunGrad" cx="0.5" cy="0.5" r="0.5">
+                <stop stop-color="#FFD166"/>
+                <stop offset="1" stop-color="#FF9A3C"/>
+              </radialGradient>
+            </defs>
+          </svg>
+        </div>
+        <h2 class="idle-title">Where in the world?</h2>
+        <p class="idle-sub">Search any city to see live weather conditions and a 5-day forecast.</p>
+      </div>
+ 
+      <!-- ══ CURRENT WEATHER CARD ══ -->
+      <div class="weather-hero" id="weatherHero" style="display:none;">
+ 
+        <!-- City + country + description -->
+        <div class="hero-location">
+          <div class="location-pin" aria-hidden="true">📍</div>
+          <div>
+            <h2 class="hero-city" id="heroCity">--</h2>
+            <p class="hero-country" id="heroCountry">--</p>
+          </div>
+        </div>
+ 
+        <div class="hero-body">
+          <!-- Left: big temperature + icon -->
+          <div class="hero-temp-block">
+            <img class="weather-icon-lg" id="heroIcon" src="" alt="Weather icon" />
+            <div class="hero-temp-num" id="heroTemp">--°C</div>
+            <div class="hero-feels" id="heroFeels">Feels like --°C</div>
+            <div class="hero-desc" id="heroDesc">--</div>
+          </div>
+ 
+          <!-- Right: stat grid -->
+          <div class="hero-stats">
+            <div class="stat-card">
+              <div class="stat-icon" aria-hidden="true">💧</div>
+              <div class="stat-value" id="statHumidity">--%</div>
+              <div class="stat-label">Humidity</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" aria-hidden="true">💨</div>
+              <div class="stat-value" id="statWind">-- km/h</div>
+              <div class="stat-label">Wind</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" aria-hidden="true">🌡️</div>
+              <div class="stat-value" id="statPressure">-- hPa</div>
+              <div class="stat-label">Pressure</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" aria-hidden="true">👁️</div>
+              <div class="stat-value" id="statVisibility">-- km</div>
+              <div class="stat-label">Visibility</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" aria-hidden="true">🌅</div>
+              <div class="stat-value" id="statSunrise">--:--</div>
+              <div class="stat-label">Sunrise</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" aria-hidden="true">🌇</div>
+              <div class="stat-value" id="statSunset">--:--</div>
+              <div class="stat-label">Sunset</div>
+            </div>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- ══ 5-DAY FORECAST STRIP ══ -->
+      <section class="forecast-section" id="forecastSection" style="display:none;" aria-label="5-day forecast">
+        <h3 class="section-title">5-Day Forecast</h3>
+        <div class="forecast-strip" id="forecastStrip">
+          <!-- Injected by JS -->
+        </div>
+      </section>
+ 
+      <!-- ══ SEARCH HISTORY PANEL ══ -->
+      <section class="history-section" id="historySection" style="display:none;" aria-label="Search history">
+        <div class="history-header">
+          <h3 class="section-title">Recent Searches</h3>
+          <button class="clear-history-btn" id="clearHistoryBtn" aria-label="Clear all search history">
+            Clear history
+          </button>
+        </div>
+        <div class="history-chips" id="historyChips">
+          <!-- Injected by JS -->
+        </div>
+      </section>
+ 
+    </main><!-- /main-content -->
+  </div><!-- /app-shell -->
+ 
+  <script src="scriptweather.js"></script>
+</body>
+</html>
