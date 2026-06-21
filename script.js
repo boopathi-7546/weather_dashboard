@@ -91,12 +91,15 @@ function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   themeIcon.textContent = theme === 'dark' ? '🌙' : '☀️';
   localStorage.setItem('skycast_theme', theme);
+
+  // Refresh weather background after theme change
+  const currentCondition =
+    heroDesc.textContent !== '--'
+      ? heroDesc.textContent.split(' ')[0]
+      : 'Clear';
+
+  setSkyBackground(currentCondition);
 }
- 
-themeBtn.addEventListener('click', () => {
-  const current = document.documentElement.getAttribute('data-theme');
-  applyTheme(current === 'dark' ? 'light' : 'dark');
-});
  
 /* ─── BACKGROUND THEMING ─────────────────────────────────────── */
  
